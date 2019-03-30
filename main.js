@@ -18,7 +18,7 @@ const BALL_RADIUS = 10;
 const BALL_A_COLOR = "red";
 const BALL_A_ORIGIN = [50, 50];
 const BALL_B_COLOR = "blue";
-const BALL_B_ORIGIN = [100, 200];
+const BALL_B_ORIGIN = [200, 200];
 const BALL_SPEED = 10;
 
 const directions = {
@@ -134,7 +134,7 @@ function moveBall(ball, direction) {
 
 function wallCollide(w, b) {
   if(b[0] >= w.x && b[0] <= w.x+w.width &&
-    b[1] >= w.y && b[1] <= w.y + w.height){
+    b[1] >= w.y && b[1] <= w.y+w.height){
       
     return true;
   }
@@ -181,7 +181,8 @@ function timeFlow(state) {
     let pass = true;
     state.walls.forEach(w => {if(wallCollide(w, test)){ pass = false; b.mov = 'NONE'; }}); 
     if(pass) {
-      b.pos = add(b.pos, directions[b.mov]); checkWalls(state, b);
+      b.pos = test;
+      checkWalls(b);
     }
     
   });
