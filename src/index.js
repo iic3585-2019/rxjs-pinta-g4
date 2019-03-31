@@ -1,112 +1,20 @@
 import { Observable } from "rxjs";
-
-const canvas = document.getElementById("canvas");
-const context = canvas.getContext("2d");
-const HEIGHT = canvas.height;
-const WIDTH = canvas.width;
-
-const add = (a1, a2) => {
-  const array = [];
-  a1.forEach((a, i) => array.push(a + a2[i]));
-  return array;
-};
-
-// Wall const
-const WALL_WIDTH = 20;
-const WALL_HEIGHT = 100;
-const WALL_COLOR = "gray";
-// Ball const
-const BALL_RADIUS = 10;
-const BALL_A_COLOR = "red";
-const BALL_A_ORIGIN = [50, 50];
-const BALL_B_COLOR = "blue";
-const BALL_B_ORIGIN = [200, 200];
-const BALL_SPEED = 10;
-
-const directions = {
-  UP: [0, -BALL_SPEED],
-  DOWN: [0, BALL_SPEED],
-  LEFT: [-BALL_SPEED, 0],
-  RIGHT: [BALL_SPEED, 0],
-  NONE: [0, 0]
-};
-
-// Keys
-const A_KEYS = {
-  // asdw
-  up: 87,
-  down: 83,
-  left: 65,
-  right: 68
-};
-const B_KEYS = {
-  // arrows
-  up: 38,
-  down: 40,
-  left: 37,
-  right: 39
-};
-const PAUSE_KEY = 80; // p
-
-const WALLS = [
-  { x: 20, y: 100, width: WALL_WIDTH, height: WALL_HEIGHT },
-  { x: 80, y: 10, width: WALL_WIDTH, height: WALL_HEIGHT },
-  { x: 300, y: 160, width: WALL_WIDTH, height: WALL_HEIGHT },
-  { x: 200, y: 480, width: WALL_HEIGHT, height: WALL_WIDTH },
-  { x: 450, y: 220, width: WALL_WIDTH, height: WALL_HEIGHT },
-  { x: 320, y: 100, width: WALL_HEIGHT, height: WALL_WIDTH }
-];
-
-//Falta definir atributos bolas (posicion, direccion, color)
-const BALL_A = {
-  pos: BALL_A_ORIGIN,
-  color: BALL_A_COLOR,
-  mov: "NONE"
-};
-
-const BALL_B = {
-  pos: BALL_B_ORIGIN,
-  color: BALL_B_COLOR,
-  mov: "NONE"
-};
-
-const BALLS = [BALL_A, BALL_B];
-
+import { add } from "./utils";
+import { BALLS, WALLS, WALL_COLOR, BALL_RADIUS, directions } from "./constants";
+import {
+  draw,
+  drawWalls,
+  drawWall,
+  drawBalls,
+  drawBall,
+  WIDTH,
+  HEIGHT,
+  context
+} from "./canvas";
 const state = {
   balls: BALLS,
   walls: WALLS
 };
-
-function drawBall(ball) {
-  context.beginPath();
-  context.arc(ball.pos[0], ball.pos[1], BALL_RADIUS, 0, Math.PI * 2);
-  context.fillStyle = ball.color;
-  context.fill();
-  context.closePath();
-}
-
-function drawBalls(balls) {
-  balls.forEach(ball => drawBall(ball));
-}
-
-function drawWall(wall) {
-  context.beginPath();
-  context.rect(wall.x, wall.y, wall.width, wall.height);
-  context.fillStyle = WALL_COLOR;
-  context.fill();
-  context.closePath();
-}
-
-function drawWalls(walls) {
-  walls.forEach(wall => drawWall(wall));
-}
-
-function draw(state) {
-  context.fillStyle = "#639fff";
-  context.fillRect(0, 0, canvas.width, canvas.height);
-  drawWalls(state.walls);
-  drawBalls(state.balls);
-}
 
 function moveBalls(state, event) {
   switch (event.key) {
@@ -197,6 +105,8 @@ function receiveInputs() {
 
 function timeFlow(state) {
   state.balls.forEach(b => {
+    /* TODO: directions hace referencia al scope de la constante
+    seria mejor pasarlo como parametro */
     const test = add(b.pos, directions[b.mov]);
     let pass = true;
     state.walls.forEach(w => {
