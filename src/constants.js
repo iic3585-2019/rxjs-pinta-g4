@@ -10,7 +10,7 @@ export const BALL_B_COLOR = "blue";
 export const BALL_B_ORIGIN = [200, 200];
 export const BALL_SPEED = 10;
 
-export const directions = {
+export const DIRECTIONS = {
   UP: [0, -BALL_SPEED],
   DOWN: [0, BALL_SPEED],
   LEFT: [-BALL_SPEED, 0],
@@ -36,12 +36,18 @@ export const B_KEYS = {
 export const PAUSE_KEY = 80; // p
 
 export const WALLS = [
-  { x: 20, y: 100, width: WALL_WIDTH, height: WALL_HEIGHT },
-  { x: 80, y: 10, width: WALL_WIDTH, height: WALL_HEIGHT },
-  { x: 300, y: 160, width: WALL_WIDTH, height: WALL_HEIGHT },
-  { x: 200, y: 480, width: WALL_HEIGHT, height: WALL_WIDTH },
-  { x: 450, y: 220, width: WALL_WIDTH, height: WALL_HEIGHT },
-  { x: 320, y: 100, width: WALL_HEIGHT, height: WALL_WIDTH }
+  {x: 20, y: 100, width: WALL_WIDTH, height: WALL_HEIGHT},
+  {x: 140, y: 10, width: WALL_WIDTH, height: WALL_HEIGHT},
+  {x: 280, y: 60, width: WALL_WIDTH, height: WALL_HEIGHT},
+  {x: 300, y: 480, width: WALL_HEIGHT, height: WALL_WIDTH},
+  {x: 450, y: 220, width: WALL_WIDTH, height: WALL_HEIGHT},
+  {x: 520, y: 500, width: WALL_HEIGHT, height: WALL_WIDTH},
+  {x: 610, y: 100, width: WALL_WIDTH, height: WALL_HEIGHT},
+  {x: 760, y: 500, width: WALL_WIDTH, height: WALL_HEIGHT},
+  {x: 820, y: 430, width: WALL_WIDTH, height: WALL_HEIGHT},
+  {x: 900, y: 230, width: WALL_HEIGHT, height: WALL_WIDTH},
+  {x: 850, y: 320, width: WALL_WIDTH, height: WALL_HEIGHT},
+  {x: 720, y: 500, width: WALL_HEIGHT, height: WALL_WIDTH},
 ];
 
 //Falta definir atributos bolas (posicion, direccion, color)

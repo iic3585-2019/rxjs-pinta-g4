@@ -1,4 +1,4 @@
-import { BALLS, WALLS, WALL_COLOR, BALL_RADIUS, directions } from "./constants";
+import { BALLS, WALLS, WALL_COLOR, BALL_RADIUS, DIRECTIONS } from "./constants";
 
 export const canvas = document.getElementById("canvas");
 export const context = canvas.getContext("2d");
@@ -34,4 +34,11 @@ export function draw(state) {
     context.fillRect(0, 0, canvas.width, canvas.height);
     drawWalls(state.walls);
     drawBalls(state.balls);
+}
+
+export function drawEnd() {
+    context.clearRect(0, 0, WIDTH, HEIGHT);
+    context.fillStyle = "white";
+    context.textAlign = "center";
+    context.fillText("Atrapado", WIDTH/2, HEIGHT/2);
 }
