@@ -1,6 +1,6 @@
-import { Observable } from "rxjs";
+import { Observable, Subject } from "rxjs";
 import { add } from "./utils";
-import { BALLS, WALLS, WALL_COLOR, BALL_RADIUS, DIRECTIONS } from "./constants";
+import { BALLS, WALLS, WALL_COLOR, BALL_RADIUS, DIRECTIONS, WALL_WIDTH, WALL_HEIGHT, BALL_SPEED } from "./constants";
 import {
   draw,
   drawWalls,
@@ -80,14 +80,14 @@ function stopBalls(state, event) {
 
 function wallCollide(w, b) {
   if (
-    b[0] >= w.x &&
-    b[0] <= w.x + w.width &&
-    b[1] >= w.y &&
-    b[1] <= w.y + w.height
+    b[0]-BALL_RADIUS >= w.x + w.width ||
+    b[0]+BALL_RADIUS <= w.x ||
+    b[1]-BALL_RADIUS >= w.y + w.height ||
+    b[1]+BALL_RADIUS <= w.y
   ) {
-    return true;
+    return false;
   }
-  return false;
+  return true;
 }
 
 function ballCollide(b1, b2) {
@@ -122,13 +122,27 @@ function timeFlow(state, keysSubscription) {
   state.balls.forEach( b => {
     const test = add(b.pos, DIRECTIONS[b.mov]);
     let pass = true;
-    state.walls.forEach(w => {if(wallCollide(w, test)){ pass = false; b.mov = 'NONE'; }});
+    state.walls.forEach(w => {
+      if(wallCollide(w, test)){
+        pass = false;
+        switch(b.mov) {
+          case 'LEFT': b.pos = add(b.pos, [w.x + w.width-b.pos[0]+BALL_RADIUS, 0]); break
+          case 'RIGHT': b.pos = add(b.pos, [-(b.pos[0]+BALL_RADIUS-w.x), 0]); break
+          case 'UP': b.pos = add(b.pos, [0,-(b.pos[1]-BALL_RADIUS-w.y-w.height)]); break
+          case 'DOWN': b.pos = add(b.pos, [0,(w.y-b.pos[1]-BALL_RADIUS)]); break
+        }
+        b.mov = 'NONE';
+      }
+    });
     if(pass) { b.pos = test; checkWalls(b);}
   });
   redraw(state);
 }
 
 const keysSubscription = receiveInputs();
+
+// const mainSubject = new Subject();
+// mainSubject.subscribe(timeFlow);
 draw(state);
 
 var time = setInterval(timeFlow, 60, state, keysSubscription);

@@ -30,7 +30,7 @@ export function drawWalls(walls) {
 }
 
 export function draw(state) {
-    context.fillStyle = "#639fff";
+    context.fillStyle = "#ABD6E8";
     context.fillRect(0, 0, canvas.width, canvas.height);
     drawWalls(state.walls);
     drawBalls(state.balls);
