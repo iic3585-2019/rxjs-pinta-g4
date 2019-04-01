@@ -165,10 +165,10 @@ function drawTime() {
     context.fillStyle = "black";
     context.textAlign = "center";
     decrease();
-    context.fillText(TIMER, WIDTH/2, 20);
+    context.fillText("Tiempo: " + TIMER, WIDTH/2, 20);
 }
 
-let TIMER = 10;
+let TIMER = 60;
 function decrease(){
     TIMER -=1;
     if (TIMER <= 0){
