@@ -160,7 +160,7 @@ game$.subscribe( {
 
 function drawTime() {
     context.fillStyle = "white";
-    context.fillRect(WIDTH/2 - 20, 0, WIDTH/2+20, 40);
+    context.fillRect(0, 0, WIDTH, 40);
     context.font = '12px Courier New';
     context.fillStyle = "black";
     context.textAlign = "center";
