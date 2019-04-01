@@ -12,6 +12,9 @@ export const BALL_B_COLOR = "blue";
 export const BALL_B_ORIGIN = [200, 200];
 export const BALL_SPEED = 10; // nota: no sobrepasar de 40 o más
 
+export const SPEED_UP_COLOR = "green"
+export const SPEED_RADIUS = 5;
+
 export const DIRECTIONS = {
   UP: [0, -BALL_SPEED],
   DOWN: [0, BALL_SPEED],
@@ -56,13 +59,24 @@ export const WALLS = [
 export const BALL_A = {
   pos: BALL_A_ORIGIN,
   color: BALL_A_COLOR,
-  mov: "NONE"
+  mov: "NONE",
+  timeSpeed: 0,
+  radius: BALL_RADIUS,
 };
 
 export const BALL_B = {
   pos: BALL_B_ORIGIN,
   color: BALL_B_COLOR,
-  mov: "NONE"
+  mov: "NONE",
+  timeSpeed: 0,
+  radius: BALL_RADIUS,
+};
+
+export const SPEED_UP = {
+  pos: [],
+  color: SPEED_UP_COLOR,
+  radius: SPEED_RADIUS,
+  timer: 100,
 };
 
 export const BALLS = [BALL_A, BALL_B];

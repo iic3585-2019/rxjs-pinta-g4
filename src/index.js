@@ -1,7 +1,7 @@
 import { Observable } from "rxjs";
 import _ from 'lodash';
 import { animationFrame } from 'rxjs/scheduler/animationFrame';
-import { add } from "./utils";
+import { add, checkCollision, getRandomPosition } from "./utils";
 import { BALLS, BALL_A, BALL_B, WALLS, BALL_RADIUS, DIRECTIONS, WALL_WIDTH, WALL_HEIGHT, BALL_SPEED, FRAMERATE } from "./constants";
 import {
   draw,
@@ -98,6 +98,9 @@ function move(balls, instruction) {
   let output = _.clone(balls);
   output[instruction[0]].mov = instruction[1];
   balls.forEach( b => {
+    if(b.color == 'green') {
+      return;
+    }
     const nextPosition = add(b.pos, DIRECTIONS[b.mov]);
   
     let canMove = true;
@@ -119,28 +122,42 @@ function move(balls, instruction) {
   return output;
 }
 
-draw([BALL_A, BALL_B]);
+function eat( balls, powerUp ) {
+  let newState = _.clone(powerUp);
+  if(powerUp.timer == 100) {
+    let newTimer = false;
+    balls.forEach(p => {
+      if(checkCollision(p, powerUp)) {
+        p.timeSpeed = 50;
+        newTimer = true;
+      }
+    });
+    if(newTimer) {
+      newState.timer -= 1;
+    }
+  }
+  else {
+    newState.timer -= 1;
+  }
+  return powerUp;
+}
+
+const powerUp = getRandomPosition([BALL_A, BALL_B]);
+
+draw([BALL_A, BALL_B, powerUp]);
 
 let time$ = Observable.interval(50);
 let keyDown$ = Observable.fromEvent( document, 'keydown' );
 let balls$ = time$.withLatestFrom(keyDown$, ( _, keyDown ) => keyDown).map((e)=>nextBallMove(e)).distinctUntilChanged().scan(move, [BALL_A, BALL_B]).share();
-
-let scene$ = Observable.combineLatest(balls$, (state) => state);
+let powerUps$ = balls$.scan(eat).distinctUntilChanged().share();
+let scene$ = Observable.combineLatest(balls$, powerUps$, (balls, powerUps) => {balls, powerUps});
 
 let game$ = Observable.interval( 1000 / FRAMERATE, animationFrame )
-    .withLatestFrom( scene$, ( _, balls ) => balls )
-    .takeWhile( balls => !ballCollide( balls[0], balls[1] ) )
+    .withLatestFrom( scene$, ( _, scene ) => scene )
+    .takeWhile( scene => !ballCollide( scene.balls[0], scene.balls[1] ) )
 ;
 
 game$.subscribe( {
     next: ( scene ) => update(scene),
     complete: console.log
 } );
-
-
-
-// const mainSubject = new Subject();
-// mainSubject.subscribe(timeFlow);
-
-
-// var time = setInterval(timeFlow, 60, state, keysSubscription);

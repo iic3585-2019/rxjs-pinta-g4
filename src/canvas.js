@@ -7,7 +7,7 @@ export const WIDTH = canvas.width;
 
 export function drawBall(ball) {
     context.beginPath();
-    context.arc(ball.pos[0], ball.pos[1], BALL_RADIUS, 0, Math.PI * 2);
+    context.arc(ball.pos[0], ball.pos[1], ball.radius, 0, Math.PI * 2);
     context.fillStyle = ball.color;
     context.fill();
     context.closePath();
