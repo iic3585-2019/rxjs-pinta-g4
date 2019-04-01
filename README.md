@@ -1,8 +1,6 @@
 # rxjs-pinta-g4
 
-_Añadir descripción_
-
-El juego se puede probar [aquí](https://iic3585-2019.github.io/rxjs-pinta-g4)
+Juego de la pinta, inspirado en el formato de los World Game Tag
 
 Para probar localmente:
 
