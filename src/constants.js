@@ -10,7 +10,7 @@ export const BALL_A_COLOR = "red";
 export const BALL_A_ORIGIN = [50, 50];
 export const BALL_B_COLOR = "blue";
 export const BALL_B_ORIGIN = [200, 200];
-export const BALL_SPEED = 10; // nota: no sobrepasar de 40 o más
+export const BALL_SPEED = 1; // nota: no sobrepasar de 40 o más
 
 export const DIRECTIONS = {
   UP: [0, -BALL_SPEED],

@@ -25,21 +25,6 @@ function endgame(){
   drawEnd("Atrapado!");
 }
 
-function stopBall(event) {
-  switch (event.key) {
-    case "w":
-    case "a":
-    case "s":
-    case "d":
-      return [0, "NONE"];
-    case "ArrowUp":
-    case "ArrowDown":
-    case "ArrowRight":
-    case "ArrowLeft":
-      return [1, "NONE"];
-  }
-}
-
 function nextBallMove(event) {
   switch (event.key) {
     case "w":
@@ -52,6 +37,7 @@ function nextBallMove(event) {
     case "ArrowRight":
     case "ArrowLeft":
       return [1, nextDirection(event.key)];
+    default: return [4, ''];
   }
 }
 
@@ -74,6 +60,7 @@ function nextDirection(direction) {
     case "d":
       output = "RIGHT";
       break;
+    default: output = '';
   }
   return output;
 
@@ -112,7 +99,10 @@ function checkWalls(b) {
 
 function move(balls, instruction) {
   let output = _.clone(balls);
-  output[instruction[0]].mov = instruction[1];
+  if(instruction[1] != ''){
+    output[instruction[0]].mov = instruction[1];
+  }
+  
   balls.forEach( b => {
     const nextPosition = add(b.pos, DIRECTIONS[b.mov]);
 
@@ -137,7 +127,7 @@ function move(balls, instruction) {
 
 draw([BALL_A, BALL_B]);
 
-let time$ = Observable.interval(50);
+let time$ = Observable.interval(1);
 let keyDown$ = Observable.fromEvent( document, 'keydown' );
 let balls$ = time$
     .withLatestFrom(keyDown$, ( _, keyDown ) => keyDown)
@@ -168,7 +158,7 @@ function drawTime() {
     context.fillText(TIMER, WIDTH/2, 20);
 }
 
-let TIMER = 10;
+let TIMER = 60;
 function decrease(){
     TIMER -=1;
     if (TIMER <= 0){
