@@ -1,3 +1,5 @@
+
+export const FRAMERATE = 60;
 // Wall export const
 export const WALL_WIDTH = 20;
 export const WALL_HEIGHT = 100;

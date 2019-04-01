@@ -1,31 +1,23 @@
-import { Observable, Subject } from "rxjs";
+import { Observable } from "rxjs";
+import _ from 'lodash';
+import { animationFrame } from 'rxjs/scheduler/animationFrame';
 import { add } from "./utils";
-import { BALLS, WALLS, WALL_COLOR, BALL_RADIUS, DIRECTIONS, WALL_WIDTH, WALL_HEIGHT, BALL_SPEED } from "./constants";
+import { BALLS, BALL_A, BALL_B, WALLS, BALL_RADIUS, DIRECTIONS, WALL_WIDTH, WALL_HEIGHT, BALL_SPEED, FRAMERATE } from "./constants";
 import {
   draw,
-  drawWalls,
-  drawWall,
-  drawBalls,
-  drawBall,
   WIDTH,
   HEIGHT,
   context,
   drawEnd,
 } from "./canvas";
 
-const state = {
-  balls: BALLS,
-  walls: WALLS
-};
-
-function redraw(state) {
+function update(balls) {
   context.clearRect(0, 0, WIDTH, HEIGHT);
-  draw(state);
+  draw(balls);
 }
 
-function endgame(keysSubscription){
-  keysSubscription.unsubscribe();
-  clearInterval(time);
+function endgame(){
+  
   /* TODO: The function is being called, but the results aren't showing.
    Even then, you CAN draw cartain things (ex: move ball1 to other spot and
     doing draw works)
@@ -33,49 +25,43 @@ function endgame(keysSubscription){
   drawEnd();
 }
 
-function moveBalls(state, event) {
+function nextBallMove(event) {
   switch (event.key) {
     case "w":
     case "a":
     case "s":
     case "d":
-      moveBall(state.balls[0], event.key);
-      break;
+      return [0, nextDirection(event.key)];
     case "ArrowUp":
     case "ArrowDown":
     case "ArrowRight":
     case "ArrowLeft":
-      moveBall(state.balls[1], event.key);
-      break;
+      return [1, nextDirection(event.key)];
   }
 }
 
-function moveBall(ball, direction) {
+function nextDirection(direction) {
+  let output = ''
   switch (direction) {
     case "ArrowUp":
     case "w":
-      ball.mov = "UP";
+      output = "UP";
       break;
     case "ArrowDown":
     case "s":
-      ball.mov = "DOWN";
+      output = "DOWN";
       break;
     case "ArrowLeft":
     case "a":
-      ball.mov = "LEFT";
+      output = "LEFT";
       break;
     case "ArrowRight":
     case "d":
-      ball.mov = "RIGHT";
+      output = "RIGHT";
       break;
   }
-}
-
-function stopBalls(state, event) {
-  switch(event.key) {
-    case 'w': case 'a': case 's': case 'd': state.balls[0].mov = 'NONE'; break
-    case 'ArrowUp': case 'ArrowDown': case 'ArrowRight': case 'ArrowLeft': state.balls[1].mov = 'NONE'; break
-  }
+  return output;
+  
 }
 
 function wallCollide(w, b) {
@@ -91,12 +77,13 @@ function wallCollide(w, b) {
 }
 
 function ballCollide(b1, b2) {
-  if(b2.pos[0]-BALL_RADIUS > b1.pos[0]+BALL_RADIUS ||
-    b2.pos[0]+BALL_RADIUS < b1.pos[0]-BALL_RADIUS ||
-    b2.pos[1]-BALL_RADIUS > b1.pos[1]+BALL_RADIUS ||
-    b2.pos[1]+BALL_RADIUS < b1.pos[1]-BALL_RADIUS){
+  if(b2.pos[0]-BALL_RADIUS >= b1.pos[0]+BALL_RADIUS ||
+    b2.pos[0]+BALL_RADIUS <= b1.pos[0]-BALL_RADIUS ||
+    b2.pos[1]-BALL_RADIUS >= b1.pos[1]+BALL_RADIUS ||
+    b2.pos[1]+BALL_RADIUS <= b1.pos[1]-BALL_RADIUS){
       return false;
     }
+  endgame(keyDown$);
   return true;
 }
 
@@ -107,42 +94,53 @@ function checkWalls(b) {
   if (b.pos[1] > HEIGHT) b.pos[1] = 0;
 }
 
-function receiveInputs(){
-  /* commented due to werid behavior */
-  // const upKeys = Observable.fromEvent(document, 'keyup');
-  // upKeys.subscribe(event => stopBalls(state, event));
-  const downKeys = Observable.fromEvent(document, 'keydown');
-  return downKeys.subscribe(event => moveBalls(state, event));
-}
-
-function timeFlow(state, keysSubscription) {
-  /* TODO: directions hace referencia al scope de la constante
-    seria mejor pasarlo como parametro */
-  if(ballCollide(state.balls[0], state.balls[1])){endgame(keysSubscription);};
-  state.balls.forEach( b => {
-    const test = add(b.pos, DIRECTIONS[b.mov]);
-    let pass = true;
-    state.walls.forEach(w => {
-      if(wallCollide(w, test)){
-        pass = false;
+function move(balls, instruction) {
+  let output = _.clone(balls);
+  output[instruction[0]].mov = instruction[1];
+  balls.forEach( b => {
+    const nextPosition = add(b.pos, DIRECTIONS[b.mov]);
+  
+    let canMove = true;
+    WALLS.forEach(w => {
+      if(wallCollide(w, nextPosition)){
+        canMove = false;
         switch(b.mov) {
           case 'LEFT': b.pos = add(b.pos, [w.x + w.width-b.pos[0]+BALL_RADIUS, 0]); break
           case 'RIGHT': b.pos = add(b.pos, [-(b.pos[0]+BALL_RADIUS-w.x), 0]); break
           case 'UP': b.pos = add(b.pos, [0,-(b.pos[1]-BALL_RADIUS-w.y-w.height)]); break
           case 'DOWN': b.pos = add(b.pos, [0,(w.y-b.pos[1]-BALL_RADIUS)]); break
         }
-        b.mov = 'NONE';
-      }
-    });
-    if(pass) { b.pos = test; checkWalls(b);}
+          b.mov = 'NONE';
+        }
+      });
+      if(canMove) { b.pos = nextPosition; checkWalls(b);
+    }
   });
-  redraw(state);
+  return output;
 }
 
-const keysSubscription = receiveInputs();
+draw([BALL_A, BALL_B]);
+
+let time$ = Observable.interval(50);
+let keyDown$ = Observable.fromEvent( document, 'keydown' );
+let balls$ = time$.withLatestFrom(keyDown$, ( _, keyDown ) => keyDown).map((e)=>nextBallMove(e)).distinctUntilChanged().scan(move, [BALL_A, BALL_B]).share();
+
+let scene$ = Observable.combineLatest(balls$, (state) => state);
+
+let game$ = Observable.interval( 1000 / FRAMERATE, animationFrame )
+    .withLatestFrom( scene$, ( _, balls ) => balls )
+    .takeWhile( balls => !ballCollide( balls[0], balls[1] ) )
+;
+
+game$.subscribe( {
+    next: ( scene ) => update(scene),
+    complete: console.log
+} );
+
+
 
 // const mainSubject = new Subject();
 // mainSubject.subscribe(timeFlow);
-draw(state);
 
-var time = setInterval(timeFlow, 60, state, keysSubscription);
+
+// var time = setInterval(timeFlow, 60, state, keysSubscription);

@@ -29,16 +29,15 @@ export function drawWalls(walls) {
     walls.forEach(wall => drawWall(wall));
 }
 
-export function draw(state) {
+export function draw(balls) {
     context.fillStyle = "#ABD6E8";
     context.fillRect(0, 0, canvas.width, canvas.height);
-    drawWalls(state.walls);
-    drawBalls(state.balls);
+    drawWalls(WALLS);
+    drawBalls(balls);
 }
 
 export function drawEnd() {
-    context.clearRect(0, 0, WIDTH, HEIGHT);
-    context.fillStyle = "white";
+    context.fillStyle = "black";
     context.textAlign = "center";
     context.fillText("Atrapado", WIDTH/2, HEIGHT/2);
 }
