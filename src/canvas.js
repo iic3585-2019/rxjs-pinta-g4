@@ -31,13 +31,16 @@ export function drawWalls(walls) {
 
 export function draw(balls) {
     context.fillStyle = "#ABD6E8";
-    context.fillRect(0, 0, canvas.width, canvas.height);
+    context.fillRect(0, 40, WIDTH, HEIGHT);
     drawWalls(WALLS);
     drawBalls(balls);
 }
 
-export function drawEnd() {
+export function drawEnd(text) {
+    context.fillStyle = "#ABD6E8";
+    context.fillRect(0, 0, WIDTH, HEIGHT);
+    context.font = '24px Courier New';
     context.fillStyle = "black";
     context.textAlign = "center";
-    context.fillText("Atrapado", WIDTH/2, HEIGHT/2);
+    context.fillText(text, WIDTH/2, HEIGHT/2);
 }

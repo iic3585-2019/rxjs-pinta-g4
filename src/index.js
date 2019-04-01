@@ -12,17 +12,32 @@ import {
 } from "./canvas";
 
 function update(balls) {
-  context.clearRect(0, 0, WIDTH, HEIGHT);
+  context.clearRect(0, 40, WIDTH, HEIGHT);
   draw(balls);
 }
 
 function endgame(){
-  
+
   /* TODO: The function is being called, but the results aren't showing.
    Even then, you CAN draw cartain things (ex: move ball1 to other spot and
     doing draw works)
   */
-  drawEnd();
+  drawEnd("Atrapado!");
+}
+
+function stopBall(event) {
+  switch (event.key) {
+    case "w":
+    case "a":
+    case "s":
+    case "d":
+      return [0, "NONE"];
+    case "ArrowUp":
+    case "ArrowDown":
+    case "ArrowRight":
+    case "ArrowLeft":
+      return [1, "NONE"];
+  }
 }
 
 function nextBallMove(event) {
@@ -61,7 +76,7 @@ function nextDirection(direction) {
       break;
   }
   return output;
-  
+
 }
 
 function wallCollide(w, b) {
@@ -83,6 +98,7 @@ function ballCollide(b1, b2) {
     b2.pos[1]+BALL_RADIUS <= b1.pos[1]-BALL_RADIUS){
       return false;
     }
+  clearInterval(timeInterval);
   endgame(keyDown$);
   return true;
 }
@@ -90,8 +106,8 @@ function ballCollide(b1, b2) {
 function checkWalls(b) {
   if (b.pos[0] < 0) b.pos[0] = WIDTH;
   if (b.pos[0] > WIDTH) b.pos[0] = 0;
-  if (b.pos[1] < 0) b.pos[1] = HEIGHT;
-  if (b.pos[1] > HEIGHT) b.pos[1] = 0;
+  if (b.pos[1] < 40) b.pos[1] = HEIGHT;
+  if (b.pos[1] > HEIGHT) b.pos[1] = 40;
 }
 
 function move(balls, instruction) {
@@ -99,7 +115,7 @@ function move(balls, instruction) {
   output[instruction[0]].mov = instruction[1];
   balls.forEach( b => {
     const nextPosition = add(b.pos, DIRECTIONS[b.mov]);
-  
+
     let canMove = true;
     WALLS.forEach(w => {
       if(wallCollide(w, nextPosition)){
@@ -123,19 +139,44 @@ draw([BALL_A, BALL_B]);
 
 let time$ = Observable.interval(50);
 let keyDown$ = Observable.fromEvent( document, 'keydown' );
-let balls$ = time$.withLatestFrom(keyDown$, ( _, keyDown ) => keyDown).map((e)=>nextBallMove(e)).distinctUntilChanged().scan(move, [BALL_A, BALL_B]).share();
+let balls$ = time$
+    .withLatestFrom(keyDown$, ( _, keyDown ) => keyDown)
+    .map((e)=>nextBallMove(e))
+    .distinctUntilChanged()
+    .scan(move, [BALL_A, BALL_B])
+    .share();
 
 let scene$ = Observable.combineLatest(balls$, (state) => state);
 
 let game$ = Observable.interval( 1000 / FRAMERATE, animationFrame )
     .withLatestFrom( scene$, ( _, balls ) => balls )
-    .takeWhile( balls => !ballCollide( balls[0], balls[1] ) )
+    .takeWhile( balls => !ballCollide( balls[0], balls[1] ) && TIMER > 0)
 ;
 
 game$.subscribe( {
     next: ( scene ) => update(scene),
     complete: console.log
 } );
+
+function drawTime() {
+    context.fillStyle = "white";
+    context.fillRect(WIDTH/2 - 20, 0, WIDTH/2+20, 40);
+    context.font = '12px Courier New';
+    context.fillStyle = "black";
+    context.textAlign = "center";
+    decrease();
+    context.fillText(TIMER, WIDTH/2, 20);
+}
+
+let TIMER = 10;
+function decrease(){
+    TIMER -=1;
+    if (TIMER <= 0){
+      drawEnd("Se acabo el tiempo!");
+      clearInterval(timeInterval);
+    }
+};
+const timeInterval = setInterval(drawTime, 1000);
 
 
 

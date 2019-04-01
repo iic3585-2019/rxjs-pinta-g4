@@ -39,7 +39,7 @@ export const PAUSE_KEY = 80; // p
 
 export const WALLS = [
   {x: 20, y: 100, width: WALL_WIDTH, height: WALL_HEIGHT},
-  {x: 140, y: 10, width: WALL_WIDTH, height: WALL_HEIGHT},
+  {x: 140, y: 50, width: WALL_WIDTH, height: WALL_HEIGHT},
   {x: 280, y: 60, width: WALL_WIDTH, height: WALL_HEIGHT},
   {x: 300, y: 480, width: WALL_HEIGHT, height: WALL_WIDTH},
   {x: 450, y: 220, width: WALL_WIDTH, height: WALL_HEIGHT},
@@ -52,7 +52,6 @@ export const WALLS = [
   {x: 720, y: 500, width: WALL_HEIGHT, height: WALL_WIDTH},
 ];
 
-//Falta definir atributos bolas (posicion, direccion, color)
 export const BALL_A = {
   pos: BALL_A_ORIGIN,
   color: BALL_A_COLOR,
